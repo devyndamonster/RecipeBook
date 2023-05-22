@@ -1,5 +1,5 @@
 import { Component, For } from 'solid-js';
-import { Recipe } from '../models/Recipe/Recipe';
+import { Recipe } from '../Models/Recipe/Recipe';
 import RecipeStore from '../State/RecipeStore';
 
 interface Props{
@@ -16,7 +16,7 @@ const RecipeComponent: Component<Props> = (props) => {
                     return <div>{ingredient}</div>
                 }}
             </For>
-            <button onClick={() => RecipeStore.updateRecipe(props.index, {name: "", ingredients:[...props.recipe.ingredients, "yup"], steps:[], stats:null})}> Add Step </button>
+            <button class="bg-slate-700 text-slate-50 p-1 rounded-sm" onClick={() => RecipeStore.updateRecipe(props.index, {name: "", ingredients:[...props.recipe.ingredients, "yup"], steps:[], stats:null})}> Add Step </button>
         </>
         
     );

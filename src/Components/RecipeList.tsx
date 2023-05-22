@@ -1,15 +1,18 @@
 import { Component, For } from "solid-js";
 import RecipeStore from "../State/RecipeStore";
 import RecipeComponent from "./RecipeComponent";
+import RecipePreview from "./RecipePreview";
 
 const RecipeList: Component = () => {
 
     return (
-        <For each={RecipeStore.recipes}>
-            {(recipe, index) => {
-                return <RecipeComponent recipe={recipe} index={index()}></RecipeComponent>
-            }}
-        </For>
+        <div class="bg-slate-600 flex flex-col">
+            <For each={RecipeStore.recipes}>
+                {(recipe) => {
+                    return <RecipePreview recipe={recipe}></RecipePreview>
+                }}
+            </For>
+        </div>
     );
 };
   
