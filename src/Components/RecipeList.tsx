@@ -1,6 +1,5 @@
 import { Component, For } from "solid-js";
 import RecipeStore from "../State/RecipeStore";
-import RecipeComponent from "./RecipeComponent";
 import RecipePreview from "./RecipePreview";
 
 const RecipeList: Component = () => {
