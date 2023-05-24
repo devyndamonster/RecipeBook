@@ -7,8 +7,8 @@ const App: Component = () => {
 
   return (
     <Routes>
-      <Route path="/RecipeBook/Recipes" component={RecipeList}/>
-      <Route path="/RecipeBook/Recipes/:id" component={RecipeComponent}/>
+      <Route path="Recipes" component={RecipeList}/>
+      <Route path="Recipes/:id" component={RecipeComponent}/>
     </Routes>
   );
 };
