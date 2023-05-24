@@ -1,3 +1,7 @@
+## Details
+
+[Site Link](https://devyndamonster.github.io/RecipeBook/#/Recipes)
+
 ## Usage
 
 Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
