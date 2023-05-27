@@ -7,7 +7,7 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "types": ["vite/client"],
+    "types": ["vite/client", "google.accounts", "gapi", "gapi.client.sheets"],
     "noEmit": true,
     "isolatedModules": true
   }
