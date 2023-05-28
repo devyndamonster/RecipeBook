@@ -19,6 +19,7 @@
   "dependencies": {
     "@solidjs/router": "^0.8.2",
     "@types/gapi": "^0.0.44",
+    "@types/gapi.client.drive-v3": "^0.0.1",
     "@types/gapi.client.sheets": "^4.0.20201031",
     "@types/google.accounts": "^0.0.7",
     "solid-js": "^1.6.10"
