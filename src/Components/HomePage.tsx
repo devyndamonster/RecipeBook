@@ -1,28 +1,10 @@
 import { Component, createSignal, onMount } from "solid-js";
 import GoogleApi from "../Api/GoogleApi";
 import { A } from "@solidjs/router";
-
-async function createSheet() {
-    let response = await gapi.client.sheets.spreadsheets.create({
-        resource: {
-            properties:{
-                title: "TestSpreadSheetAgain"
-            }
-        }
-    });
-
-    
-
-    console.log(response);
-}
+import DataFileStore from "../State/DataFileStore";
 
 async function listAllFiles() {
-
-    console.log(gapi.client)
-
-    let response = await gapi.client.drive.files.list();
-
-    console.log(response);
+    await DataFileStore.loadFilesFromGoogle();
 }
 
 const HomePage: Component = () => {
