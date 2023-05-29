@@ -2,7 +2,8 @@ import { createSignal } from "solid-js";
 
 const discoveryDocs = [
     'https://sheets.googleapis.com/$discovery/rest?version=v4',
-    'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
+    'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
+    'https://docs.googleapis.com/$discovery/rest?version=v1'
 ];
 const scopes = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
 let tokenClient;
@@ -38,13 +39,12 @@ const loadGapi = (callback) => {
     const script = document.createElement('script');
     script.src = "https://apis.google.com/js/api.js";
     script.onload = () => {
-
-        console.log(import.meta.env.VITE_GOOGLE_API_KEY)
-
         gapi.load('client', async () => {
             await gapi.client.init({
                 discoveryDocs: discoveryDocs
             });
+
+            console.log(gapi.client);
 
             callback();
         });

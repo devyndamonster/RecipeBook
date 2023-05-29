@@ -1,15 +1,35 @@
 import { createStore } from "solid-js/store";
 import { Recipe } from "../Models/Recipe/Recipe";
+import DataFileStore from "./DataFileStore";
 
-const [recipes, setRecipes] = createStore<Recipe[]>([
-    {id: "1", name: "A Cool Recipe", ingredients: ["3 cups of stuff", "2 tbsp of things"], steps: [
-        {title: "Make the sauce", instructions: ["Do the thing", "Do it again"]}, 
-        {title: "Make the sauce again", instructions: ["Do the thing", "Do it again"]}
-    ], stats: {estimatedCalories: 100, estimatedTime: 30}},
-    {id: "2", name: "A Cool Recipe 2", ingredients: ["3 cups of stuff", "2 tbsp of things"], steps: [], stats: {estimatedCalories: 100, estimatedTime: 30}},
-    {id: "3", name: "A Cool Recipe 3", ingredients: ["3 cups of stuff", "2 tbsp of things"], steps: [], stats: {estimatedCalories: 100, estimatedTime: 30}},
-    {id: "4", name: "A Cool Recipe 4", ingredients: ["3 cups of stuff", "2 tbsp of things"], steps: [], stats: {estimatedCalories: 100, estimatedTime: 30}}
-]);
+const [recipes, setRecipes] = createStore<Recipe[]>([]);
+
+const loadRecipeListingFromId = async () => {
+    const listingFileId = DataFileStore.files.find(file => file.name == "RecipeBook.RecipeSheet").id;
+    const listingContent = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: listingFileId,
+        range: "A2:D"
+    });
+
+    const recipeListing: Recipe[] = listingContent.result.values.map(result => {
+        return {
+            id: result[0],
+            name: result[1],
+            stats: {
+                estimatedTime: result[2],
+                estimatedCalories: result[3]
+            },
+            ingredients: [],
+            steps: []
+        }
+    });
+
+    setRecipes(recipeListing);
+}
+
+const loadRecipeDetailsFromId = async (recipeId: string): Promise<Recipe> => {
+    return null;
+}
 
 const addRecipe = (recipe: Recipe) => {
     setRecipes([...recipes, recipe]);
@@ -30,6 +50,7 @@ export default {
     recipes,
     addRecipe,
     getRecipe,
-    updateRecipe
+    updateRecipe,
+    loadRecipeListingFromId
 }
 
