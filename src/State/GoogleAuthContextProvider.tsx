@@ -27,12 +27,11 @@ export const GoogleAuthContextProvider: Component<{children?: JSXElement}> = (pr
 	onMount(() => {
 		if(!isSignedInToGoogle()){
 			GoogleApi.initializeGoogleApi((token) => {
-				setAccessToken(token);
-				setIsSignedInToGoogle(true);
-
 				loadFilesFromGoogle().then((files) => {
 					console.log(files);
 					setGoogleFiles(files);
+					setAccessToken(token);
+					setIsSignedInToGoogle(true);
 				})
 			})
 		}
