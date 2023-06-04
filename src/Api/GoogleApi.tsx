@@ -1,5 +1,3 @@
-import { createSignal } from "solid-js";
-
 const discoveryDocs = [
     'https://sheets.googleapis.com/$discovery/rest?version=v4',
     'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
@@ -8,16 +6,10 @@ const discoveryDocs = [
 const scopes = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
 let tokenClient;
 
-const [signedIntoGoogle, setSignedIntoGoogle] = createSignal(false);
-
-const initializeGoogleApi = () => {
-    if(signedIntoGoogle()){
-        return;
-    }
-
+const initializeGoogleApi = (callback: (accessToken: string) => void) => {
     loadGsi(
         () => loadGapi(
-            () => googleSignIn()))
+            () => googleSignIn(callback)))
 }
 
 const loadGsi = (callback) => {
@@ -30,6 +22,7 @@ const loadGsi = (callback) => {
             scope: scopes,
             callback: (response) => {}
         });
+
         callback();
     };
     document.body.appendChild(script);
@@ -43,23 +36,19 @@ const loadGapi = (callback) => {
             await gapi.client.init({
                 discoveryDocs: discoveryDocs
             });
-
-            console.log(gapi.client);
-
             callback();
         });
     };
     document.body.appendChild(script);
 }
 
-const googleSignIn = () => {
+const googleSignIn = (callback) => {
     tokenClient.callback = async (resp) => {
         if (resp.error !== undefined) {
-            setSignedIntoGoogle(false);
             throw (resp);
         }
 
-        setSignedIntoGoogle(true);
+        callback(gapi.auth.getToken().access_token)
     };
 
     if (gapi.client.getToken() === null) {
@@ -70,6 +59,5 @@ const googleSignIn = () => {
 }
 
 export default{
-    initializeGoogleApi,
-    signedIntoGoogle
+    initializeGoogleApi
 }

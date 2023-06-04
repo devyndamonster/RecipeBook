@@ -1,6 +1,5 @@
 import { createStore } from "solid-js/store";
 import { Recipe } from "../Models/Recipe/Recipe";
-import DataFileStore from "./DataFileStore";
 
 const [recipes, setRecipes] = createStore<Recipe[]>([]);
 
@@ -27,6 +26,85 @@ const loadRecipeListingFromId = async () => {
     setRecipes(recipeListing);
 }
 
+const getDocContents = async (fileId: string): Promise<string> => {
+    const response = await gapi.client.docs.documents.get({
+        documentId: fileId
+    });
+    
+    console.log(response);
+
+    return response;
+}
+
+const updateDocForRecipe = async (fileId: string): Promise<void> => {
+
+    let requests = [
+        {
+            'insertText': {
+                'location': {
+                    'index': 1,
+                },
+                'text': 'Title of the recipe\n'
+            }
+        },
+        {
+            'insertText': {
+                'location': {
+                    'index': 1,
+                },
+                'text': '\nIngredients:\n'
+            }
+        },
+        {
+            'insertText': {
+                'location': {
+                    'index': 1,
+                },
+                'text': '- 1 tbsp chili powder\n'
+            }
+        },
+        {
+            'insertText': {
+                'location': {
+                    'index': 1,
+                },
+                'text': '- 3 tbsp mustard powder\n'
+            }
+        },
+        {
+            'insertText': {
+                'location': {
+                    'index': 1,
+                },
+                'text': '\nInstructions:\n'
+            }
+        },
+        {
+            'insertText': {
+                'location': {
+                    'index': 1,
+                },
+                'text': '- Do it\n'
+            }
+        },
+        {
+            'insertText': {
+                'location': {
+                    'index': 1,
+                },
+                'text': '- Do it again\n'
+            }
+        },
+    ];
+
+    const response = await gapi.client.docs.documents.batchUpdate({
+        documentId: fileId,
+        requests: requests.reverse()
+    });
+    
+    console.log(response);
+}
+
 const loadRecipeDetailsFromId = async (recipeId: string): Promise<Recipe> => {
     return null;
 }
@@ -51,6 +129,8 @@ export default {
     addRecipe,
     getRecipe,
     updateRecipe,
-    loadRecipeListingFromId
+    loadRecipeListingFromId,
+    getDocContents,
+    updateDocForRecipe
 }
 

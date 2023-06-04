@@ -1,9 +1,5 @@
-import { createStore } from "solid-js/store";
 import { DataFile } from "../Models/Data/DataFile";
 import { RequiredDataFile } from "../Models/Data/RequiredDataFile";
-
-
-const [files, setFiles] = createStore<DataFile[]>([]);
 
 const requiredDataFiles: RequiredDataFile[] = [
     {
@@ -18,8 +14,7 @@ const requiredDataFiles: RequiredDataFile[] = [
     }
 ];
 
-
-const loadFilesFromGoogle = async () => {
+export const loadFilesFromGoogle = async (): Promise<DataFile[]> => {
     const response = await gapi.client.drive.files.list({
         q: "name contains 'RecipeBook'"
     });
@@ -45,9 +40,7 @@ const loadFilesFromGoogle = async () => {
         }
     }
 
-    console.log(loadedFiles)
-
-    setFiles(loadedFiles);
+    return loadedFiles;
 }
 
 const createFile = async (fileName: string, mimeType: string, parentIds: string[]): Promise<DataFile> => {
@@ -65,10 +58,5 @@ const createFile = async (fileName: string, mimeType: string, parentIds: string[
         id: response.result.id,
         mimeType: mimeType
     }
-}
-
-export default{
-    files,
-    loadFilesFromGoogle
 }
 

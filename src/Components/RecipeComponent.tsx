@@ -14,6 +14,8 @@ const RecipeComponent: Component = () => {
         setRecipe(updatedRecipe);
     }
 
+    RecipeStore.getDocContents('1SpxrSXGg22_9G4dOQOrU7keu6NnK80-MwSIkCMH90eU');
+
     return (
         <div class="flex flex-col p-10">
             <h1 class="text-xl mb-3">{recipe().name}</h1>
