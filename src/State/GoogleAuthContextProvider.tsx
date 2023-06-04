@@ -9,6 +9,7 @@ const GoogleAuthContext = createContext<GoogleAuthContextStore>();
 interface GoogleAuthContextStore {
 	isSignedInToGoogle: Accessor<boolean>;
 	accessToken: Accessor<string>;
+	googleFiles: DataFile[];
 }
 
 export const GoogleAuthContextProvider: Component<{children?: JSXElement}> = (props) => {
@@ -19,7 +20,8 @@ export const GoogleAuthContextProvider: Component<{children?: JSXElement}> = (pr
 
 	const context: GoogleAuthContextStore = {
 		isSignedInToGoogle,
-		accessToken
+		accessToken,
+		googleFiles
 	}
 
 	onMount(() => {
