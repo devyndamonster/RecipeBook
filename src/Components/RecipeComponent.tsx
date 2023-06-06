@@ -2,22 +2,26 @@ import { Component, For, Show, createSignal, onMount } from 'solid-js';
 import { Recipe } from '../Models/Recipe/Recipe';
 import { A, useParams } from '@solidjs/router';
 import { useRecipes } from '../State/RecipesContextProvider';
-
+import { useGoogleAuth } from '../State/GoogleAuthContextProvider';
+import { loadRecipeDetailsFromDoc } from '../Api/RecipeManagement';
 
 const RecipeComponent: Component = () => {
 
     const [recipe, setRecipe] = createSignal<Recipe>(null);
     const params = useParams();
     const {recipes} = useRecipes();
+    const {accessToken} = useGoogleAuth();
 
     onMount(async () => {
         let loadedRecipe = recipes.find(r => r.id == params.id);
 
         if(loadedRecipe == null){
-            //load the recipe
+            return;
         }
 
-        setRecipe({...loadedRecipe})
+        let recipeDetails = await loadRecipeDetailsFromDoc(loadedRecipe.id, accessToken());
+
+        setRecipe({...loadedRecipe, ingredients: recipeDetails.ingredients, steps: [{ title: "Make The Food", instructions: recipeDetails.instructions}]})
     });
 
     const addIngredient = (ingredient: string) => {

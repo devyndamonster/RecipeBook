@@ -7,7 +7,6 @@ export const getDocumentContent = async (documentId: string, accessToken: string
         }
     });
 
-    console.log(response);
-
-    return response;
+    const blob = await response.blob();
+    return JSON.parse(await blob.text());
 }
