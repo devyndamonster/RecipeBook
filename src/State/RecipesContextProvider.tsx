@@ -1,5 +1,5 @@
-import { Accessor, Component, JSXElement, createContext, createEffect, createSignal, onMount, useContext } from "solid-js";
-import { createStore } from "solid-js/store";
+import { Accessor, Component, JSXElement, Setter, createContext, createEffect, createSignal, onMount, useContext } from "solid-js";
+import { SetStoreFunction, createStore } from "solid-js/store";
 import { Recipe } from "../Models/Recipe/Recipe";
 import { useGoogleAuth } from "./GoogleAuthContextProvider";
 import { loadRecipeListingFromId } from "../Api/RecipeManagement";
@@ -7,17 +7,19 @@ import { loadRecipeListingFromId } from "../Api/RecipeManagement";
 const RecipesContext = createContext<RecipesContextStore>();
 
 interface RecipesContextStore {
-	recipes: Recipe[];
+	recipes: Accessor<Recipe[]>;
+	setRecipes: Setter<Recipe[]>
 }
 
 export const RecipesContextProvider: Component<{children?: JSXElement}> = (props) => {
 
-	const [recipes, setRecipes] = createStore<Recipe[]>([]);
+	const [recipes, setRecipes] = createSignal<Recipe[]>([]);
     const [hasLoadedRecipes, setHasLoadedRecipes] = createSignal(false);
     const {isSignedInToGoogle, googleFiles} = useGoogleAuth();
 
 	const context: RecipesContextStore = {
-		recipes
+		recipes,
+		setRecipes
 	}
 
 	createEffect(async () => {

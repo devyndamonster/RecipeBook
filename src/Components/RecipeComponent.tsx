@@ -1,5 +1,4 @@
-import { Component, For, Show, createSignal, onMount } from 'solid-js';
-import { Recipe } from '../Models/Recipe/Recipe';
+import { Component, For, Match, Show, Switch, createSignal, onMount } from 'solid-js';
 import { A, useParams } from '@solidjs/router';
 import { useRecipes } from '../State/RecipesContextProvider';
 import { useGoogleAuth } from '../State/GoogleAuthContextProvider';
@@ -7,13 +6,15 @@ import { loadRecipeDetailsFromDoc } from '../Api/RecipeManagement';
 
 const RecipeComponent: Component = () => {
 
-    const [recipe, setRecipe] = createSignal<Recipe>(null);
+    const [isEditing, setIsEditing] = createSignal(false);
     const params = useParams();
-    const {recipes} = useRecipes();
+    const {recipes, setRecipes} = useRecipes();
     const {accessToken} = useGoogleAuth();
 
+    const loadedRecipe = () => recipes().find(r => r.id == params.id);
+
     onMount(async () => {
-        let loadedRecipe = recipes.find(r => r.id == params.id);
+        let loadedRecipe = recipes().find(r => r.id == params.id);
 
         if(loadedRecipe == null){
             return;
@@ -21,30 +22,29 @@ const RecipeComponent: Component = () => {
 
         let recipeDetails = await loadRecipeDetailsFromDoc(loadedRecipe.id, accessToken());
 
-        setRecipe({...loadedRecipe, ingredients: recipeDetails.ingredients, steps: recipeDetails.recipeSteps})
+        setRecipes(recipes().map(recipe => recipe.id == params.id ? {
+            ...recipe,
+            ingredients: recipeDetails.ingredients,
+            steps: recipeDetails.recipeSteps,
+        } : recipe))
     });
-
-    const addIngredient = (ingredient: string) => {
-        const updatedRecipe = {...recipe(), ingredients: [...recipe().ingredients, ingredient]}
-        setRecipe(updatedRecipe);
-    }
 
     return (
         <Show
-            when={recipe() != null}
+            when={loadedRecipe() != null}
             fallback={<div>Loading...</div>}
         >
             <div class="flex flex-col p-10">
-                <h1 class="text-xl mb-3">{recipe().name}</h1>
+                <h1 class="text-xl mb-3">{loadedRecipe().name}</h1>
 
                 <div class="flex flex-row mb-3">
-                    <p class="mr-10"><b>Estimated Time:</b> {recipe().stats.estimatedTime} </p>
-                    <p class="mr-10"><b>Estimated Calories:</b> {recipe().stats.estimatedCalories} </p>
+                    <p class="mr-10"><b>Estimated Time:</b> {loadedRecipe().stats.estimatedTime} </p>
+                    <p class="mr-10"><b>Estimated Calories:</b> {loadedRecipe().stats.estimatedCalories} </p>
                 </div>
 
                 <h2 class="text-lg">Ingredients</h2>
                 <ul class="mb-3">
-                    <For each={recipe().ingredients}>
+                    <For each={loadedRecipe().ingredients}>
                         {(ingredient) => 
                             <li>
                                 {ingredient}
@@ -54,7 +54,7 @@ const RecipeComponent: Component = () => {
                 </ul>
                 
                 <h2 class="text-lg">Instructions</h2>
-                <For each={recipe().steps}>
+                <For each={loadedRecipe().steps}>
                     {(step) =>
                         <div class="bg-slate-300 flex-grow p-3 rounded-md mb-1">
                             <h3>{step.title}</h3>
@@ -72,8 +72,14 @@ const RecipeComponent: Component = () => {
                 </For>
 
                 <div class="flex flex-row gap-1">
-                    <button class="bg-slate-700 text-slate-50 p-1 rounded-sm" onClick={() => addIngredient("New Ingredient!")}> Add Ingredient </button>
-                    <button class="bg-slate-700 text-slate-50 p-1 rounded-sm" onClick={() => {}}> Save! </button>
+                    <Switch>
+                        <Match when={isEditing()}>
+                            <button class="bg-slate-700 text-slate-50 p-1 rounded-sm" onClick={() => setIsEditing(false)}> Save </button>
+                        </Match>
+                        <Match when={!isEditing()}>
+                            <button class="bg-slate-700 text-slate-50 p-1 rounded-sm" onClick={() => setIsEditing(true)}> Edit </button>
+                        </Match>
+                    </Switch>
                     <A class="bg-slate-700 text-slate-50 p-1 rounded-sm text-center" href="/Recipes">Go Back!</A>
                 </div>
             </div>
