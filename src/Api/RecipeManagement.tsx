@@ -1,4 +1,5 @@
 import { Recipe } from "../Models/Recipe/Recipe";
+import { RecipeStep } from "../Models/Recipe/RecipeStep";
 import { getDocumentContent } from "./GoogleDocsClient";
 
 export const loadRecipeListingFromId = async (fileId: string): Promise<Recipe[]> => {
@@ -23,7 +24,7 @@ export const loadRecipeListingFromId = async (fileId: string): Promise<Recipe[]>
     return recipeListing;
 }
 
-export const loadRecipeDetailsFromDoc = async (fileId: string, accessToken: string): Promise<{ingredients: string[], instructions: string[]}> => {
+export const loadRecipeDetailsFromDoc = async (fileId: string, accessToken: string): Promise<{ingredients: string[], recipeSteps: RecipeStep[]}> => {
     let documentContent = await getDocumentContent(fileId, accessToken);
 
     let paragraphLines: string[] = documentContent.body.content
@@ -41,7 +42,29 @@ export const loadRecipeDetailsFromDoc = async (fileId: string, accessToken: stri
         }
     });
 
-    console.log(paragraphSegments);
+    let ingredientLines = findParagraphStartingWithLine("Ingredients", paragraphSegments);
+    let instructionLines = findParagraphStartingWithLine("Instructions", paragraphSegments);
 
-    return {ingredients: paragraphSegments[1], instructions: paragraphSegments[2]};
+    let ingredients: string[] = [];
+    ingredientLines.forEach(line => {
+        if(line.startsWith("-")){
+            ingredients.push(line.replace("-", ""));
+        }
+    })
+
+    let recipeSteps: RecipeStep[] = [];
+    instructionLines.forEach(line => {
+        if(line.startsWith("#")){
+            recipeSteps.push({title: line.replace("#", ""), instructions: []});
+        }
+        else if(line.startsWith("-")){
+            recipeSteps[recipeSteps.length - 1].instructions.push(line.replace("-", ""));
+        }
+    })
+
+    return {ingredients: ingredients, recipeSteps: recipeSteps};
+}
+
+const findParagraphStartingWithLine = (firstLine: string, paragraphs: string[][]): string[] => {
+    return paragraphs.find(paragraph => paragraph.findIndex(line => line.includes(firstLine)) == 0);
 }

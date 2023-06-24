@@ -21,7 +21,7 @@ const RecipeComponent: Component = () => {
 
         let recipeDetails = await loadRecipeDetailsFromDoc(loadedRecipe.id, accessToken());
 
-        setRecipe({...loadedRecipe, ingredients: recipeDetails.ingredients, steps: [{ title: "Make The Food", instructions: recipeDetails.instructions}]})
+        setRecipe({...loadedRecipe, ingredients: recipeDetails.ingredients, steps: recipeDetails.recipeSteps})
     });
 
     const addIngredient = (ingredient: string) => {
