@@ -8,7 +8,8 @@ const RecipesContext = createContext<RecipesContextStore>();
 
 interface RecipesContextStore {
 	recipes: Accessor<Recipe[]>;
-	setRecipes: Setter<Recipe[]>
+	setRecipes: Setter<Recipe[]>;
+	setRecipe: (updatedRecipe: Recipe, recipeId: string) => void;
 }
 
 export const RecipesContextProvider: Component<{children?: JSXElement}> = (props) => {
@@ -17,9 +18,16 @@ export const RecipesContextProvider: Component<{children?: JSXElement}> = (props
     const [hasLoadedRecipes, setHasLoadedRecipes] = createSignal(false);
     const {isSignedInToGoogle, googleFiles} = useGoogleAuth();
 
+	const setRecipe = (updatedRecipe: Recipe, recipeId: string) => {
+		setRecipes(recipes().map(recipe => recipe.id == recipeId ? {
+            ...updatedRecipe
+        } : recipe));
+	}
+
 	const context: RecipesContextStore = {
 		recipes,
-		setRecipes
+		setRecipes,
+		setRecipe
 	}
 
 	createEffect(async () => {
