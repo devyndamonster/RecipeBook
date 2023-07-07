@@ -5,71 +5,54 @@ import { useGoogleAuth } from '../State/GoogleAuthContextProvider';
 import { loadRecipeDetailsFromDoc } from '../Api/RecipeManagement';
 import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlinePlus, AiOutlineMinus } from 'solid-icons/ai'
 import { Recipe } from '../Models/Recipe/Recipe';
+import { produce } from 'solid-js/store';
 
 const RecipeComponent: Component = () => {
 
     const [isEditing, setIsEditing] = createSignal(false);
     const params = useParams();
-    const {recipes, setRecipe} = useRecipes();
+    const {recipes, setRecipes} = useRecipes();
     const {accessToken} = useGoogleAuth();
 
-    const loadedRecipe = () => recipes().find(r => r.id == params.id);
+    const loadedRecipe = () => recipes.find(r => r.id == params.id);
 
     onMount(async () => {
-        let loadedRecipe = recipes().find(r => r.id == params.id);
-
-        if(loadedRecipe == null){
+        if(loadedRecipe() == null){
             return;
         }
 
-        let recipeDetails = await loadRecipeDetailsFromDoc(loadedRecipe.id, accessToken());
-
-        setRecipe({
-            ...loadedRecipe,
-            ingredients: recipeDetails.ingredients,
-            steps: recipeDetails.recipeSteps,
-        }, params.id)
+        let recipeDetails = await loadRecipeDetailsFromDoc(loadedRecipe().id, accessToken());
+        setRecipes(r => r.id == params.id, r => ({...r, ingredients: recipeDetails.ingredients, steps: recipeDetails.recipeSteps}));
     });
 
     const setStepTitle = (updatedTitle: string, stepIndex: number) => {
-        const recipe = loadedRecipe();
-        setRecipe({
-            ...recipe,
-            steps: recipe.steps.map((step, index) => index == stepIndex ? ({
-                ...step,
-                title: updatedTitle
-            }) : step)
-        }, params.id);
+        setRecipes(
+            produce((r) => {
+                let recipe = r[recipes.findIndex(r => r.id == params.id)];
+                recipe.steps[stepIndex].title = updatedTitle;
+            })
+        );
     }
 
     const setInstructionText = (updatedText: string, stepIndex: number, instructionIndex: number) => {
-        const recipe = loadedRecipe();
-        setRecipe({
-            ...recipe,
-            steps: recipe.steps.map((step, index) => index == stepIndex ? ({
-                ...step,
-                instructions: step.instructions.map((instruction, index) => index == instructionIndex ? updatedText : instruction)
-            }) : step)
-        }, params.id)
+        setRecipes(
+            produce((r) => {
+                let recipe = r[recipes.findIndex(r => r.id == params.id)];
+                recipe.steps[stepIndex].instructions[instructionIndex] = updatedText;
+            })
+        );
     }
 
     const moveInstructionUp = (stepIndex: number, instructionIndex: number) => {
-        const recipe = loadedRecipe();
-        setRecipe({
-            ...recipe,
-            steps: recipe.steps.map((step, index) => {
-                if(index == stepIndex && instructionIndex > 0){
-                    let instructions = [...step.instructions];
-                    [instructions[instructionIndex - 1], instructions[instructionIndex]] = [instructions[instructionIndex], instructions[instructionIndex - 1]];
-
-                    return {
-                        ...step,
-                        instructions: instructions
-                    }
+        setRecipes(
+            produce((r) => {
+                if(instructionIndex > 0){
+                    let recipe = r[recipes.findIndex(r => r.id == params.id)];
+                    let instructions = recipe.steps[stepIndex].instructions;
+                    [instructions[instructionIndex - 1], instructions[instructionIndex]] = [instructions[instructionIndex], instructions[instructionIndex - 1]]
                 }
-                return step;
             })
-        }, params.id)
+        );
     }
 
     return (

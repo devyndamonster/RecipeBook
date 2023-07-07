@@ -8,7 +8,7 @@ const RecipeList: Component = () => {
 
     return (
         <div class="bg-slate-600 flex flex-col">
-            <For each={recipes()}>
+            <For each={recipes}>
                 {(recipe) => {
                     return <RecipePreview recipe={recipe}></RecipePreview>
                 }}
