@@ -4,7 +4,6 @@ import { useRecipes } from '../State/RecipesContextProvider';
 import { useGoogleAuth } from '../State/GoogleAuthContextProvider';
 import { loadRecipeDetailsFromDoc } from '../Api/RecipeManagement';
 import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlinePlus, AiOutlineMinus } from 'solid-icons/ai'
-import { Recipe } from '../Models/Recipe/Recipe';
 import { produce } from 'solid-js/store';
 
 const RecipeComponent: Component = () => {
@@ -55,6 +54,92 @@ const RecipeComponent: Component = () => {
         );
     }
 
+    const moveInstructionDown = (stepIndex: number, instructionIndex: number) => {
+        setRecipes(
+            produce((r) => {
+                let recipe = r[recipes.findIndex(r => r.id == params.id)];
+                let instructions = recipe.steps[stepIndex].instructions;
+                if(instructionIndex < instructions.length - 1){
+                    [instructions[instructionIndex + 1], instructions[instructionIndex]] = [instructions[instructionIndex], instructions[instructionIndex + 1]]
+                }
+            })
+        );
+    }
+
+    const removeInstruction = (stepIndex: number, instructionIndex: number) => {
+        setRecipes(
+            produce((r) => {
+                let recipe = r[recipes.findIndex(r => r.id == params.id)];
+                let instructions = recipe.steps[stepIndex].instructions;
+                if(instructions.length > 1){
+                    instructions.splice(instructionIndex, 1);
+                }
+                else{
+                    instructions[instructionIndex] = ""
+                }
+            })
+        );
+    }
+
+    const addInstruction = (stepIndex: number, instructionIndex: number) => {
+        setRecipes(
+            produce((r) => {
+                let recipe = r[recipes.findIndex(r => r.id == params.id)];
+                let instructions = recipe.steps[stepIndex].instructions;
+                instructions.splice(instructionIndex + 1, 0, "");
+            })
+        );
+    }
+
+    const moveStepUp = (stepIndex: number) => {
+        setRecipes(
+            produce((r) => {
+                if(stepIndex > 0){
+                    let recipe = r[recipes.findIndex(r => r.id == params.id)];
+                    let steps = recipe.steps;
+                    [steps[stepIndex - 1], steps[stepIndex]] = [steps[stepIndex], steps[stepIndex - 1]]
+                }
+            })
+        );
+    }
+
+    const moveStepDown = (stepIndex: number) => {
+        setRecipes(
+            produce((r) => {
+                let recipe = r[recipes.findIndex(r => r.id == params.id)];
+                let steps = recipe.steps;
+                if(stepIndex < steps.length - 1){
+                    [steps[stepIndex + 1], steps[stepIndex]] = [steps[stepIndex], steps[stepIndex + 1]]
+                }
+            })
+        );
+    }
+
+    const removeStep = (stepIndex: number) => {
+        setRecipes(
+            produce((r) => {
+                let recipe = r[recipes.findIndex(r => r.id == params.id)];
+                let steps = recipe.steps;
+                if(steps.length > 1){
+                    steps.splice(stepIndex, 1);
+                }
+                else{
+                    steps[stepIndex] = {title:"", instructions:[""]}
+                }
+            })
+        );
+    }
+
+    const addStep = (stepIndex: number) => {
+        setRecipes(
+            produce((r) => {
+                let recipe = r[recipes.findIndex(r => r.id == params.id)];
+                let steps = recipe.steps;
+                steps.splice(stepIndex + 1, 0, {title: "", instructions: [""]});
+            })
+        );
+    }
+
     return (
         <Show
             when={loadedRecipe() != null}
@@ -86,7 +171,22 @@ const RecipeComponent: Component = () => {
 
                             <Switch>
                                 <Match when={isEditing()}>
-                                    <input class="w-full m-0" value={step.title} onChange={event => setStepTitle(event.target.value, stepIndex())}/>
+                                    <div class="flex flex-row my-1">
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2">
+                                            <AiOutlinePlus fill='white' onClick={() => addStep(stepIndex())}/>
+                                        </button>
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2">
+                                            <AiOutlineMinus fill='white' onClick={() => removeStep(stepIndex())}/>
+                                        </button>
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2">
+                                            <AiOutlineArrowDown fill='white' onClick={() => moveStepDown(stepIndex())}/>
+                                        </button>
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2">
+                                            <AiOutlineArrowUp fill='white'onClick={() => moveStepUp(stepIndex())}/>
+                                        </button>
+                                        <input class="w-full m-0" value={step.title} onChange={event => setStepTitle(event.target.value, stepIndex())}/>
+                                    </div>
+                                    <hr class="h-px my-3"/>
                                 </Match>
                                 <Match when={!isEditing()}>
                                     <h3>{step.title}</h3>
@@ -99,13 +199,13 @@ const RecipeComponent: Component = () => {
                                         <Switch>
                                             <Match when={isEditing()}>
                                                 <div class="flex flex-row my-1">
-                                                    <button class="bg-slate-700 text-slate-50 mr-px px-2">
+                                                    <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => addInstruction(stepIndex(), instructionIndex())}>
                                                         <AiOutlinePlus fill='white'/>
                                                     </button>
-                                                    <button class="bg-slate-700 text-slate-50 mr-px px-2">
+                                                    <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => removeInstruction(stepIndex(), instructionIndex())}>
                                                         <AiOutlineMinus fill='white'/>
                                                     </button>
-                                                    <button class="bg-slate-700 text-slate-50 mr-px px-2">
+                                                    <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveInstructionDown(stepIndex(), instructionIndex())}>
                                                         <AiOutlineArrowDown fill='white'/>
                                                     </button>
                                                     <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveInstructionUp(stepIndex(), instructionIndex())}>
