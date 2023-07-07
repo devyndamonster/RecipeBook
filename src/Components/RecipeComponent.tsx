@@ -104,6 +104,32 @@ const RecipeComponent: Component = () => {
         steps.splice(stepIndex + 1, 0, {title: "", instructions: [""]});
     });
 
+    const addIngredient = updateRecipe((recipe: Recipe, ingredientIndex: number) => {
+        recipe.ingredients.splice(ingredientIndex + 1, 0, "");
+    });
+
+    const removeIngredient = updateRecipe((recipe: Recipe, ingredientIndex: number) => {
+        recipe.ingredients.splice(ingredientIndex, 1);
+    });
+
+    const updateIngredientText = updateRecipe((recipe: Recipe, ingredientIndex: number, text: string) => {
+        recipe.ingredients[ingredientIndex] = text;
+    });
+
+    const moveIngredientUp = updateRecipe((recipe: Recipe, ingredientIndex: number) => {
+        if(ingredientIndex > 0){
+            let ingredients = recipe.ingredients;
+            [ingredients[ingredientIndex - 1], ingredients[ingredientIndex]] = [ingredients[ingredientIndex], ingredients[ingredientIndex - 1]]
+        }
+    });
+
+    const moveIngredientDown = updateRecipe((recipe: Recipe, ingredientIndex: number) => {
+        if(ingredientIndex < recipe.ingredients.length - 1){
+            let ingredients = recipe.ingredients;
+            [ingredients[ingredientIndex + 1], ingredients[ingredientIndex]] = [ingredients[ingredientIndex], ingredients[ingredientIndex + 1]]
+        }
+    });
+
     return (
         <Show
             when={loadedRecipe() != null}
@@ -120,10 +146,32 @@ const RecipeComponent: Component = () => {
                 <h2 class="text-lg">Ingredients</h2>
                 <ul class="mb-3">
                     <For each={loadedRecipe().ingredients}>
-                        {(ingredient) => 
-                            <li>
-                                {ingredient}
-                            </li>
+                        {(ingredient, ingredientIndex) => 
+                            <Switch>
+                                <Match when={isEditing()}>
+                                    <div class="flex flex-row my-1 border-slate-700 border-2">
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => addIngredient(ingredientIndex())}>
+                                            <AiOutlinePlus fill='white'/>
+                                        </button>
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => removeIngredient(ingredientIndex())}>
+                                            <AiOutlineMinus fill='white'/>
+                                        </button>
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveIngredientDown(ingredientIndex())}>
+                                            <AiOutlineArrowDown fill='white'/>
+                                        </button>
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveIngredientUp(ingredientIndex())}>
+                                            <AiOutlineArrowUp fill='white'/>
+                                        </button>
+                                        <input class="w-full m-0" value={ingredient} onChange={event => updateIngredientText(ingredientIndex(), event.target.value)}/>
+                                    </div>
+                                </Match>
+                                <Match when={!isEditing()}>
+                                    <li>
+                                        {ingredient}
+                                    </li>
+                                </Match>
+                            </Switch>
+                            
                         }
                     </For>
                 </ul>
@@ -132,25 +180,24 @@ const RecipeComponent: Component = () => {
                 <For each={loadedRecipe().steps}>
                     {(step, stepIndex) =>
                         <div class="bg-slate-300 flex-grow p-3 rounded-md mb-1">
-
                             <Switch>
                                 <Match when={isEditing()}>
-                                    <div class="flex flex-row my-1">
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2">
-                                            <AiOutlinePlus fill='white' onClick={() => addStep(stepIndex())}/>
+                                    <div class="flex flex-row my-1 border-slate-700 border-2">
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => addStep(stepIndex())}>
+                                            <AiOutlinePlus fill='white'/>
                                         </button>
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2">
-                                            <AiOutlineMinus fill='white' onClick={() => removeStep(stepIndex())}/>
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => removeStep(stepIndex())}>
+                                            <AiOutlineMinus fill='white'/>
                                         </button>
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2">
-                                            <AiOutlineArrowDown fill='white' onClick={() => moveStepDown(stepIndex())}/>
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveStepDown(stepIndex())}>
+                                            <AiOutlineArrowDown fill='white'/>
                                         </button>
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2">
-                                            <AiOutlineArrowUp fill='white'onClick={() => moveStepUp(stepIndex())}/>
+                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveStepUp(stepIndex())}>
+                                            <AiOutlineArrowUp fill='white'/>
                                         </button>
                                         <input class="w-full m-0" value={step.title} onChange={event => setStepTitle(event.target.value, stepIndex())}/>
                                     </div>
-                                    <hr class="h-px my-3"/>
+                                    <hr class="my-1 bg-slate-700" style={{height: "2px"}}/>
                                 </Match>
                                 <Match when={!isEditing()}>
                                     <h3>{step.title}</h3>
@@ -162,7 +209,7 @@ const RecipeComponent: Component = () => {
                                     {(instruction, instructionIndex) => 
                                         <Switch>
                                             <Match when={isEditing()}>
-                                                <div class="flex flex-row my-1">
+                                                <div class="flex flex-row my-1 border-slate-700 border-2">
                                                     <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => addInstruction(stepIndex(), instructionIndex())}>
                                                         <AiOutlinePlus fill='white'/>
                                                     </button>
