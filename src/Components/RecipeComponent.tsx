@@ -5,6 +5,9 @@ import { useGoogleAuth } from '../State/GoogleAuthContextProvider';
 import { loadRecipeDetailsFromDoc } from '../Api/RecipeManagement';
 import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlinePlus, AiOutlineMinus } from 'solid-icons/ai'
 import { produce } from 'solid-js/store';
+import { Recipe } from '../Models/Recipe/Recipe';
+
+type RecipeUpdater<T extends any[]> = (...args: T) => void;
 
 const RecipeComponent: Component = () => {
 
@@ -24,121 +27,82 @@ const RecipeComponent: Component = () => {
         setRecipes(r => r.id == params.id, r => ({...r, ingredients: recipeDetails.ingredients, steps: recipeDetails.recipeSteps}));
     });
 
-    const setStepTitle = (updatedTitle: string, stepIndex: number) => {
-        setRecipes(
-            produce((r) => {
-                let recipe = r[recipes.findIndex(r => r.id == params.id)];
-                recipe.steps[stepIndex].title = updatedTitle;
-            })
-        );
-    }
-
-    const setInstructionText = (updatedText: string, stepIndex: number, instructionIndex: number) => {
-        setRecipes(
-            produce((r) => {
-                let recipe = r[recipes.findIndex(r => r.id == params.id)];
-                recipe.steps[stepIndex].instructions[instructionIndex] = updatedText;
-            })
-        );
-    }
-
-    const moveInstructionUp = (stepIndex: number, instructionIndex: number) => {
-        setRecipes(
-            produce((r) => {
-                if(instructionIndex > 0){
+    function updateRecipe<T extends any[]>(action: (recipe: Recipe, ...args: T) => void): RecipeUpdater<T> {
+        return (...args: T) => {
+            setRecipes(
+                produce((r) => {
                     let recipe = r[recipes.findIndex(r => r.id == params.id)];
-                    let instructions = recipe.steps[stepIndex].instructions;
-                    [instructions[instructionIndex - 1], instructions[instructionIndex]] = [instructions[instructionIndex], instructions[instructionIndex - 1]]
-                }
-            })
-        );
-    }
+                    action(recipe, ...args);
+                })
+            );
+        };
+    };
 
-    const moveInstructionDown = (stepIndex: number, instructionIndex: number) => {
-        setRecipes(
-            produce((r) => {
-                let recipe = r[recipes.findIndex(r => r.id == params.id)];
-                let instructions = recipe.steps[stepIndex].instructions;
-                if(instructionIndex < instructions.length - 1){
-                    [instructions[instructionIndex + 1], instructions[instructionIndex]] = [instructions[instructionIndex], instructions[instructionIndex + 1]]
-                }
-            })
-        );
-    }
+    const setStepTitle = updateRecipe((recipe: Recipe, updatedTitle: string, stepIndex: number) => {
+        recipe.steps[stepIndex].title = updatedTitle;
+    });
 
-    const removeInstruction = (stepIndex: number, instructionIndex: number) => {
-        setRecipes(
-            produce((r) => {
-                let recipe = r[recipes.findIndex(r => r.id == params.id)];
-                let instructions = recipe.steps[stepIndex].instructions;
-                if(instructions.length > 1){
-                    instructions.splice(instructionIndex, 1);
-                }
-                else{
-                    instructions[instructionIndex] = ""
-                }
-            })
-        );
-    }
+    const setInstructionText = updateRecipe((recipe: Recipe, updatedText: string, stepIndex: number, instructionIndex: number) => {
+        recipe.steps[stepIndex].instructions[instructionIndex] = updatedText;
+    });
 
-    const addInstruction = (stepIndex: number, instructionIndex: number) => {
-        setRecipes(
-            produce((r) => {
-                let recipe = r[recipes.findIndex(r => r.id == params.id)];
-                let instructions = recipe.steps[stepIndex].instructions;
-                instructions.splice(instructionIndex + 1, 0, "");
-            })
-        );
-    }
+    const moveInstructionUp = updateRecipe((recipe: Recipe, stepIndex: number, instructionIndex: number) => {
+        if(instructionIndex > 0){
+            let instructions = recipe.steps[stepIndex].instructions;
+            [instructions[instructionIndex - 1], instructions[instructionIndex]] = [instructions[instructionIndex], instructions[instructionIndex - 1]]
+        }
+    });
 
-    const moveStepUp = (stepIndex: number) => {
-        setRecipes(
-            produce((r) => {
-                if(stepIndex > 0){
-                    let recipe = r[recipes.findIndex(r => r.id == params.id)];
-                    let steps = recipe.steps;
-                    [steps[stepIndex - 1], steps[stepIndex]] = [steps[stepIndex], steps[stepIndex - 1]]
-                }
-            })
-        );
-    }
+    const moveInstructionDown = updateRecipe((recipe: Recipe, stepIndex: number, instructionIndex: number) => {
+        let instructions = recipe.steps[stepIndex].instructions;
+        if(instructionIndex < instructions.length - 1){
+            [instructions[instructionIndex + 1], instructions[instructionIndex]] = [instructions[instructionIndex], instructions[instructionIndex + 1]]
+        }
+    });
 
-    const moveStepDown = (stepIndex: number) => {
-        setRecipes(
-            produce((r) => {
-                let recipe = r[recipes.findIndex(r => r.id == params.id)];
-                let steps = recipe.steps;
-                if(stepIndex < steps.length - 1){
-                    [steps[stepIndex + 1], steps[stepIndex]] = [steps[stepIndex], steps[stepIndex + 1]]
-                }
-            })
-        );
-    }
+    const removeInstruction = updateRecipe((recipe: Recipe, stepIndex: number, instructionIndex: number) => {
+        let instructions = recipe.steps[stepIndex].instructions;
+        if(instructions.length > 1){
+            instructions.splice(instructionIndex, 1);
+        }
+        else{
+            instructions[instructionIndex] = ""
+        }
+    });
 
-    const removeStep = (stepIndex: number) => {
-        setRecipes(
-            produce((r) => {
-                let recipe = r[recipes.findIndex(r => r.id == params.id)];
-                let steps = recipe.steps;
-                if(steps.length > 1){
-                    steps.splice(stepIndex, 1);
-                }
-                else{
-                    steps[stepIndex] = {title:"", instructions:[""]}
-                }
-            })
-        );
-    }
+    const addInstruction = updateRecipe((recipe: Recipe, stepIndex: number, instructionIndex: number) => {
+        let instructions = recipe.steps[stepIndex].instructions;
+        instructions.splice(instructionIndex + 1, 0, "");
+    });
 
-    const addStep = (stepIndex: number) => {
-        setRecipes(
-            produce((r) => {
-                let recipe = r[recipes.findIndex(r => r.id == params.id)];
-                let steps = recipe.steps;
-                steps.splice(stepIndex + 1, 0, {title: "", instructions: [""]});
-            })
-        );
-    }
+    const moveStepUp = updateRecipe((recipe: Recipe, stepIndex: number) => {
+        if(stepIndex > 0){
+            let steps = recipe.steps;
+            [steps[stepIndex - 1], steps[stepIndex]] = [steps[stepIndex], steps[stepIndex - 1]]
+        }
+    });
+
+    const moveStepDown = updateRecipe((recipe: Recipe, stepIndex: number) => {
+        let steps = recipe.steps;
+        if(stepIndex < steps.length - 1){
+            [steps[stepIndex + 1], steps[stepIndex]] = [steps[stepIndex], steps[stepIndex + 1]]
+        }
+    });
+
+    const removeStep = updateRecipe((recipe: Recipe, stepIndex: number) => {
+        let steps = recipe.steps;
+        if(steps.length > 1){
+            steps.splice(stepIndex, 1);
+        }
+        else{
+            steps[stepIndex] = {title:"", instructions:[""]}
+        }
+    });
+
+    const addStep = updateRecipe((recipe: Recipe, stepIndex: number) => {
+        let steps = recipe.steps;
+        steps.splice(stepIndex + 1, 0, {title: "", instructions: [""]});
+    });
 
     return (
         <Show
