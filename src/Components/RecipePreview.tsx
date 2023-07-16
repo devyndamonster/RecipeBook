@@ -10,8 +10,7 @@ const RecipePreview: Component<Props> = (props) => {
   
   return (
     <A 
-      class="flex flex-row bg-slate-100 hover:bg-slate-200 p-1 border-b border-slate-400 font-normal text-slate-950 cursor-pointer" 
-      onClick={() => console.log("Wow!")}
+      class="flex flex-row bg-slate-100 hover:bg-slate-200 p-1 border-b border-slate-400 font-normal text-slate-950 cursor-pointer"
       href={props.recipe.id}
       >
         <div class="flex flex-col" >

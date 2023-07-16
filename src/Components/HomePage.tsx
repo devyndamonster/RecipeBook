@@ -4,7 +4,7 @@ import { useGoogleAuth } from "../State/GoogleAuthContextProvider";
 
 const HomePage: Component = () => {
   
-    const {isSignedInToGoogle} = useGoogleAuth();
+    const [isSignedInToGoogle] = useGoogleAuth();
 
     return (
         <div class="flex flex-col">

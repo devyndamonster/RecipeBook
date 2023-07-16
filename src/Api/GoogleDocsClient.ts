@@ -8,7 +8,12 @@ export const getDocumentContent = async (documentId: string, accessToken: string
     });
 
     const blob = await response.blob();
-    return JSON.parse(await blob.text());
+    const result = JSON.parse(await blob.text());
+
+    console.log("Retrived document content");
+    console.log(result);
+
+    return result;
 }
 
 export const clearDocumentContent = async (documentId: string, accessToken: string): Promise<void> => {
@@ -30,6 +35,8 @@ export const clearDocumentContent = async (documentId: string, accessToken: stri
         },
         body: JSON.stringify({ 'requests': [request] })
     });
+
+    console.log("Cleared document content");
 }
 
 export const insertDocumentContent = async (documentId: string, accessToken: string, lines: string[]): Promise<void> => {
@@ -50,4 +57,7 @@ export const insertDocumentContent = async (documentId: string, accessToken: str
         },
         body: JSON.stringify({ 'requests': requests.reverse() })
     });
+
+    console.log("Inserted document content");
+    console.log(requests);
 }

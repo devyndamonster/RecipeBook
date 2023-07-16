@@ -4,7 +4,7 @@ import { useRecipes } from "../State/RecipesContextProvider";
 
 const RecipeList: Component = () => {
 
-    const {recipes} = useRecipes();
+    const [recipes] = useRecipes();
 
     return (
         <div class="bg-slate-600 flex flex-col">

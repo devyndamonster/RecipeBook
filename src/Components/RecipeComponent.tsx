@@ -13,8 +13,8 @@ const RecipeComponent: Component = () => {
 
     const [isEditing, setIsEditing] = createSignal(false);
     const params = useParams();
-    const {recipes, setRecipes} = useRecipes();
-    const {accessToken} = useGoogleAuth();
+    const [recipes, setRecipes] = useRecipes();
+    const [isSignedIntoGoogle, accessToken] = useGoogleAuth();
 
     const loadedRecipe = () => recipes.find(r => r.id == params.id);
 

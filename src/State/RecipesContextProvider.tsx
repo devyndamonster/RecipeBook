@@ -6,21 +6,18 @@ import { loadRecipeListingFromId } from "../Api/RecipeManagement";
 
 const RecipesContext = createContext<RecipesContextStore>();
 
-interface RecipesContextStore {
-	recipes: Recipe[];
-	setRecipes: SetStoreFunction<Recipe[]>;
-}
+type RecipesContextStore = [Recipe[], SetStoreFunction<Recipe[]>]
 
 export const RecipesContextProvider: Component<{children?: JSXElement}> = (props) => {
 
 	const [recipes, setRecipes] = createStore<Recipe[]>([]);
     const [hasLoadedRecipes, setHasLoadedRecipes] = createSignal(false);
-    const {isSignedInToGoogle, googleFiles} = useGoogleAuth();
+    const [isSignedInToGoogle, accessToken, googleFiles] = useGoogleAuth();
 
-	const context: RecipesContextStore = {
+	const context: RecipesContextStore = [
 		recipes,
 		setRecipes
-	}
+	]
 
 	createEffect(async () => {
         if(isSignedInToGoogle() && !hasLoadedRecipes()){

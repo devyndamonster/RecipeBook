@@ -6,11 +6,7 @@ import { DataFile } from "../Models/Data/DataFile";
 
 const GoogleAuthContext = createContext<GoogleAuthContextStore>();
 
-interface GoogleAuthContextStore {
-	isSignedInToGoogle: Accessor<boolean>;
-	accessToken: Accessor<string>;
-	googleFiles: DataFile[];
-}
+type GoogleAuthContextStore = [Accessor<boolean>, Accessor<string>, DataFile[]]
 
 export const GoogleAuthContextProvider: Component<{children?: JSXElement}> = (props) => {
 
@@ -18,16 +14,18 @@ export const GoogleAuthContextProvider: Component<{children?: JSXElement}> = (pr
 	const [accessToken, setAccessToken] = createSignal('');
 	const [googleFiles, setGoogleFiles] = createStore<DataFile[]>([])
 
-	const context: GoogleAuthContextStore = {
+	const context: GoogleAuthContextStore = [
 		isSignedInToGoogle,
 		accessToken,
 		googleFiles
-	}
+	]
 
 	onMount(() => {
+		console.log(`Mounting google auth context. Access Token ${accessToken()}`)
 		if(!isSignedInToGoogle()){
 			GoogleApi.initializeGoogleApi((token) => {
 				loadFilesFromGoogle().then((files) => {
+					console.log("Loaded data files");
 					console.log(files);
 					setGoogleFiles(files);
 					setAccessToken(token);

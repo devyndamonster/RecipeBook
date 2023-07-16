@@ -16,13 +16,12 @@ const loadGsi = (callback) => {
     const script = document.createElement('script');
     script.src = "https://accounts.google.com/gsi/client";
     script.onload = () => {
-        console.log("Loaded script: " + import.meta.env.VITE_GOOGLE_CLIENT_ID)
         tokenClient = google.accounts.oauth2.initTokenClient({
             client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
             scope: scopes,
             callback: (response) => {}
         });
-
+        console.log("Loaded google auth client");
         callback();
     };
     document.body.appendChild(script);
@@ -38,6 +37,7 @@ const loadGapi = (callback) => {
             });
             callback();
         });
+        console.log("Loaded google api client");
     };
     document.body.appendChild(script);
 }
@@ -47,7 +47,7 @@ const googleSignIn = (callback) => {
         if (resp.error !== undefined) {
             throw (resp);
         }
-
+        console.log("Signed into google auth");
         callback(gapi.auth.getToken().access_token)
     };
 
