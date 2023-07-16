@@ -246,6 +246,7 @@ const RecipeComponent: Component = () => {
                 </For>
 
                 <div class="flex flex-row gap-1">
+                    <A class="bg-slate-700 text-slate-50 p-1 rounded-sm text-center" href="/Recipes">Go Back</A>
                     <Switch>
                         <Match when={isEditing()}>
                             <button class="bg-slate-700 text-slate-50 p-1 rounded-sm" onClick={() => save()}> Save </button>
@@ -254,7 +255,6 @@ const RecipeComponent: Component = () => {
                             <button class="bg-slate-700 text-slate-50 p-1 rounded-sm" onClick={() => setIsEditing(true)}> Edit </button>
                         </Match>
                     </Switch>
-                    <A class="bg-slate-700 text-slate-50 p-1 rounded-sm text-center" href="/Recipes">Go Back!</A>
                 </div>
             </div>
         </Show>

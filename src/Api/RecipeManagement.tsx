@@ -1,6 +1,7 @@
 import { Recipe } from "../Models/Recipe/Recipe";
 import { RecipeStep } from "../Models/Recipe/RecipeStep";
 import { getDocumentContent, clearDocumentContent, insertDocumentContent } from "./GoogleDocsClient";
+import { appendCells } from "./GoogleSheetsClient";
 
 export const loadRecipeListingFromId = async (fileId: string): Promise<Recipe[]> => {
     const listingContent = await gapi.client.sheets.spreadsheets.values.get({
@@ -85,4 +86,17 @@ export const saveRecipe = async (fileId: string, accessToken: string, recipe: Re
 
 const findParagraphStartingWithLine = (firstLine: string, paragraphs: string[][]): string[] => {
     return paragraphs.find(paragraph => paragraph.findIndex(line => line.includes(firstLine)) == 0);
+}
+
+export const createRecipe = async (recipeSheetId: string, parentId: string, accessToken: string): Promise<void> => {
+    const response = await gapi.client.drive.files.create({
+        resource: {
+            name: "New Recipe",
+            mimeType: "application/vnd.google-apps.document",
+            parents: [parentId]
+        },
+        fields: 'id'
+    })
+
+    await appendCells(recipeSheetId, accessToken)
 }
