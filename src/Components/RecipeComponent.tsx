@@ -6,6 +6,7 @@ import { loadRecipeDetailsFromDoc, saveRecipe } from '../Api/RecipeManagement';
 import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlinePlus, AiOutlineMinus } from 'solid-icons/ai'
 import { produce } from 'solid-js/store';
 import { Recipe } from '../Models/Recipe/Recipe';
+import { EditableField } from './EditableField';
 
 type RecipeUpdater<T extends any[]> = (...args: T) => void;
 
@@ -155,21 +156,14 @@ const RecipeComponent: Component = () => {
                         {(ingredient, ingredientIndex) => 
                             <Switch>
                                 <Match when={isEditing()}>
-                                    <div class="flex flex-row my-1 border-slate-700 border-2">
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => addIngredient(ingredientIndex())}>
-                                            <AiOutlinePlus fill='white'/>
-                                        </button>
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => removeIngredient(ingredientIndex())}>
-                                            <AiOutlineMinus fill='white'/>
-                                        </button>
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveIngredientDown(ingredientIndex())}>
-                                            <AiOutlineArrowDown fill='white'/>
-                                        </button>
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveIngredientUp(ingredientIndex())}>
-                                            <AiOutlineArrowUp fill='white'/>
-                                        </button>
-                                        <input class="w-full m-0" value={ingredient} onChange={event => updateIngredientText(ingredientIndex(), event.target.value)}/>
-                                    </div>
+                                    <EditableField 
+                                        add={() => addIngredient(ingredientIndex())} 
+                                        remove={() => removeIngredient(ingredientIndex())}
+                                        moveDown={() => moveIngredientDown(ingredientIndex())}
+                                        moveUp={() => moveIngredientUp(ingredientIndex())}
+                                        value={ingredient}
+                                        onValueChange={(value) => updateIngredientText(ingredientIndex(), value)}
+                                    />
                                 </Match>
                                 <Match when={!isEditing()}>
                                     <li>
@@ -177,7 +171,6 @@ const RecipeComponent: Component = () => {
                                     </li>
                                 </Match>
                             </Switch>
-                            
                         }
                     </For>
                 </ul>
@@ -188,21 +181,14 @@ const RecipeComponent: Component = () => {
                         <div class="bg-slate-300 flex-grow p-3 rounded-md mb-1">
                             <Switch>
                                 <Match when={isEditing()}>
-                                    <div class="flex flex-row my-1 border-slate-700 border-2">
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => addStep(stepIndex())}>
-                                            <AiOutlinePlus fill='white'/>
-                                        </button>
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => removeStep(stepIndex())}>
-                                            <AiOutlineMinus fill='white'/>
-                                        </button>
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveStepDown(stepIndex())}>
-                                            <AiOutlineArrowDown fill='white'/>
-                                        </button>
-                                        <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveStepUp(stepIndex())}>
-                                            <AiOutlineArrowUp fill='white'/>
-                                        </button>
-                                        <input class="w-full m-0" value={step.title} onChange={event => setStepTitle(event.target.value, stepIndex())}/>
-                                    </div>
+                                    <EditableField 
+                                        add={() => addStep(stepIndex())} 
+                                        remove={() => removeStep(stepIndex())}
+                                        moveDown={() => moveStepDown(stepIndex())}
+                                        moveUp={() => moveStepUp(stepIndex())}
+                                        value={step.title}
+                                        onValueChange={(value) => setStepTitle(value, stepIndex())}
+                                    />
                                     <hr class="my-1 bg-slate-700" style={{height: "2px"}}/>
                                 </Match>
                                 <Match when={!isEditing()}>
@@ -215,22 +201,14 @@ const RecipeComponent: Component = () => {
                                     {(instruction, instructionIndex) => 
                                         <Switch>
                                             <Match when={isEditing()}>
-                                                <div class="flex flex-row my-1 border-slate-700 border-2">
-                                                    <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => addInstruction(stepIndex(), instructionIndex())}>
-                                                        <AiOutlinePlus fill='white'/>
-                                                    </button>
-                                                    <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => removeInstruction(stepIndex(), instructionIndex())}>
-                                                        <AiOutlineMinus fill='white'/>
-                                                    </button>
-                                                    <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveInstructionDown(stepIndex(), instructionIndex())}>
-                                                        <AiOutlineArrowDown fill='white'/>
-                                                    </button>
-                                                    <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => moveInstructionUp(stepIndex(), instructionIndex())}>
-                                                        <AiOutlineArrowUp fill='white'/>
-                                                    </button>
-                                                    <input class="w-full m-0" value={instruction} onChange={event => setInstructionText(event.target.value, stepIndex(), instructionIndex())}/>
-                                                </div>
-                                                
+                                                <EditableField 
+                                                    add={() => addInstruction(stepIndex(), instructionIndex())} 
+                                                    remove={() => removeInstruction(stepIndex(), instructionIndex())}
+                                                    moveDown={() => moveInstructionDown(stepIndex(), instructionIndex())}
+                                                    moveUp={() => moveInstructionUp(stepIndex(), instructionIndex())}
+                                                    value={instruction}
+                                                    onValueChange={(value) => setInstructionText(value, stepIndex(), instructionIndex())}
+                                                />
                                             </Match>
                                             <Match when={!isEditing()}>
                                                 <li>
