@@ -1,4 +1,24 @@
-export const appendCells = async (fileId: string, accessToken: string): Promise<any> =>{
+type CellValue = number | string;
+
+export const appendRow = async (fileId: string, accessToken: string, values: CellValue[]): Promise<any> =>{
+
+    const row = values.map(value => {
+        if(typeof value === 'number'){
+            return {
+                userEnteredValue:{
+                    numberValue: value
+                }
+            }
+        }
+        else{
+            return {
+                userEnteredValue:{
+                    stringValue: value
+                }
+            }
+        }
+    })
+
     let response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${fileId}:batchUpdate`,{
         method: "POST",
         headers: {
@@ -12,28 +32,7 @@ export const appendCells = async (fileId: string, accessToken: string): Promise<
                         fields: "*",
                         rows: [
                             {
-                                values: [
-                                    {
-                                        userEnteredValue: {
-                                            stringValue: "test"
-                                        }
-                                    },
-                                    {
-                                        userEnteredValue: {
-                                            stringValue: "Cool Name"
-                                        }
-                                    },
-                                    {
-                                        userEnteredValue: {
-                                            stringValue: "Time"
-                                        }
-                                    },
-                                    {
-                                        userEnteredValue: {
-                                            stringValue: "132"
-                                        }
-                                    }
-                                ]
+                                values: row
                             }
                         ]
                     }

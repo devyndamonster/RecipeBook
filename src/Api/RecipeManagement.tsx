@@ -1,7 +1,7 @@
 import { Recipe } from "../Models/Recipe/Recipe";
 import { RecipeStep } from "../Models/Recipe/RecipeStep";
 import { getDocumentContent, clearDocumentContent, insertDocumentContent } from "./GoogleDocsClient";
-import { appendCells } from "./GoogleSheetsClient";
+import { appendRow } from "./GoogleSheetsClient";
 
 export const loadRecipeListingFromId = async (fileId: string): Promise<Recipe[]> => {
     const listingContent = await gapi.client.sheets.spreadsheets.values.get({
@@ -98,5 +98,7 @@ export const createRecipe = async (recipeSheetId: string, parentId: string, acce
         fields: 'id'
     })
 
-    await appendCells(recipeSheetId, accessToken)
+    const values = [response.result.id, "New Recipe", 0, 0];
+
+    await appendRow(recipeSheetId, accessToken, values)
 }
