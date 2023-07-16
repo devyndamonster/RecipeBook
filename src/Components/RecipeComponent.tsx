@@ -2,7 +2,7 @@ import { Component, For, Match, Show, Switch, createSignal, onMount } from 'soli
 import { A, useParams } from '@solidjs/router';
 import { useRecipes } from '../State/RecipesContextProvider';
 import { useGoogleAuth } from '../State/GoogleAuthContextProvider';
-import { loadRecipeDetailsFromDoc } from '../Api/RecipeManagement';
+import { loadRecipeDetailsFromDoc, saveRecipe } from '../Api/RecipeManagement';
 import { AiOutlineArrowDown, AiOutlineArrowUp, AiOutlinePlus, AiOutlineMinus } from 'solid-icons/ai'
 import { produce } from 'solid-js/store';
 import { Recipe } from '../Models/Recipe/Recipe';
@@ -100,8 +100,7 @@ const RecipeComponent: Component = () => {
     });
 
     const addStep = updateRecipe((recipe: Recipe, stepIndex: number) => {
-        let steps = recipe.steps;
-        steps.splice(stepIndex + 1, 0, {title: "", instructions: [""]});
+        let steps = recipe.steps;        steps.splice(stepIndex + 1, 0, {title: "", instructions: [""]});
     });
 
     const addIngredient = updateRecipe((recipe: Recipe, ingredientIndex: number) => {
@@ -129,6 +128,13 @@ const RecipeComponent: Component = () => {
             [ingredients[ingredientIndex + 1], ingredients[ingredientIndex]] = [ingredients[ingredientIndex], ingredients[ingredientIndex + 1]]
         }
     });
+
+    const save = () => {
+        saveRecipe(params.id, accessToken(), loadedRecipe())
+            .then(() => {
+                setIsEditing(false);
+            })
+    }
 
     return (
         <Show
@@ -242,7 +248,7 @@ const RecipeComponent: Component = () => {
                 <div class="flex flex-row gap-1">
                     <Switch>
                         <Match when={isEditing()}>
-                            <button class="bg-slate-700 text-slate-50 p-1 rounded-sm" onClick={() => setIsEditing(false)}> Save </button>
+                            <button class="bg-slate-700 text-slate-50 p-1 rounded-sm" onClick={() => save()}> Save </button>
                         </Match>
                         <Match when={!isEditing()}>
                             <button class="bg-slate-700 text-slate-50 p-1 rounded-sm" onClick={() => setIsEditing(true)}> Edit </button>
