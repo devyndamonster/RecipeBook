@@ -152,7 +152,16 @@ const RecipeComponent: Component = () => {
 
                 <h2 class="text-lg">Ingredients</h2>
                 <ul class="mb-3">
-                    <For each={loadedRecipe().ingredients}>
+                    <For 
+                        each={loadedRecipe().ingredients} 
+                        fallback={
+                            <Show when={isEditing()}>
+                                <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => addIngredient(0)}>
+                                    <AiOutlinePlus fill='white'/>
+                                </button>
+                            </Show>
+                        }
+                    >
                         {(ingredient, ingredientIndex) => 
                             <Switch>
                                 <Match when={isEditing()}>
@@ -176,7 +185,18 @@ const RecipeComponent: Component = () => {
                 </ul>
                 
                 <h2 class="text-lg">Instructions</h2>
-                <For each={loadedRecipe().steps}>
+                <For 
+                    each={loadedRecipe().steps} 
+                    fallback={
+                        <Show when={isEditing()}>
+                            <div>
+                                <button class="bg-slate-700 text-slate-50 mr-px px-2" onClick={() => addStep(0)}>
+                                    <AiOutlinePlus fill='white'/>
+                                </button>
+                            </div>
+                        </Show>
+                    }
+                >
                     {(step, stepIndex) =>
                         <div class="bg-slate-300 flex-grow p-3 rounded-md mb-1">
                             <Switch>
