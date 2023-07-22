@@ -7,55 +7,25 @@ const scopes = 'https://www.googleapis.com/auth/spreadsheets https://www.googlea
 let tokenClient;
 
 const initializeGoogleApi = (callback: (accessToken: string) => void) => {
-    loadGsi(
-        () => loadGapi(
-            () => googleSignIn(callback)))
+    loadGsi(callback)
 }
 
-const loadGsi = (callback) => {
+const loadGsi = (callback: (accessToken: string) => void) => {
     const script = document.createElement('script');
     script.src = "https://accounts.google.com/gsi/client";
     script.onload = () => {
         tokenClient = google.accounts.oauth2.initTokenClient({
             client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
             scope: scopes,
-            callback: (response) => {}
+            callback: (response) => {
+                console.log("Loaded google auth client");
+                console.log(response);
+                callback(response.access_token);
+            }
         });
-        console.log("Loaded google auth client");
-        callback();
-    };
-    document.body.appendChild(script);
-}
-
-const loadGapi = (callback) => {
-    const script = document.createElement('script');
-    script.src = "https://apis.google.com/js/api.js";
-    script.onload = () => {
-        gapi.load('client', async () => {
-            await gapi.client.init({
-                discoveryDocs: discoveryDocs
-            });
-            callback();
-        });
-        console.log("Loaded google api client");
-    };
-    document.body.appendChild(script);
-}
-
-const googleSignIn = (callback) => {
-    tokenClient.callback = async (resp) => {
-        if (resp.error !== undefined) {
-            throw (resp);
-        }
-        console.log("Signed into google auth");
-        callback(gapi.auth.getToken().access_token)
-    };
-
-    if (gapi.client.getToken() === null) {
         tokenClient.requestAccessToken({prompt: 'consent'});
-    } else {
-        tokenClient.requestAccessToken({prompt: ''});
-    }
+    };
+    document.body.appendChild(script);
 }
 
 export default{
