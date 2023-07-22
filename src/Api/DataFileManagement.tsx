@@ -16,8 +16,15 @@ const requiredDataFiles: RequiredDataFile[] = [
 
 export const loadFilesFromGoogle = async (): Promise<DataFile[]> => {
     const response = await gapi.client.drive.files.list({
-        q: "name contains 'RecipeBook'"
+        q: "name contains 'RecipeBook'",
     });
+
+    await gapi.client.drive.files.update({
+        fileId: "",
+        resource: {
+            name: ""
+        }
+    })
 
     let loadedFiles: DataFile[] = response.result.files.map(file => {
         return {
