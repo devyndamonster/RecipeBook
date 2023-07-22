@@ -15,7 +15,7 @@ const RecipeComponent: Component = () => {
     const [isEditing, setIsEditing] = createSignal(false);
     const params = useParams();
     const [recipes, setRecipes] = useRecipes();
-    const [isSignedIntoGoogle, accessToken] = useGoogleAuth();
+    const [isSignedIntoGoogle, accessToken, googleFiles] = useGoogleAuth();
 
     const loadedRecipe = () => recipes.find(r => r.id == params.id);
 
@@ -130,8 +130,18 @@ const RecipeComponent: Component = () => {
         }
     });
 
+    const setRecipeTitle = updateRecipe((recipe: Recipe, title: string) => {
+        recipe.name = title;
+    })
+
     const save = () => {
-        saveRecipe(params.id, accessToken(), loadedRecipe())
+        const sheetId = googleFiles.find(f => f.name == "RecipeBook.RecipeSheet").id;
+        const recipeRow = recipes.findIndex(r => r.id == params.id) + 1;
+
+        console.log(recipes);
+        console.log(recipeRow);
+
+        saveRecipe(params.id, accessToken(), sheetId, loadedRecipe(), recipeRow)
             .then(() => {
                 setIsEditing(false);
             })
@@ -143,7 +153,17 @@ const RecipeComponent: Component = () => {
             fallback={<div>Loading...</div>}
         >
             <div class="flex flex-col p-10">
-                <h1 class="text-xl mb-3">{loadedRecipe().name}</h1>
+                <Switch>
+                    <Match when={!isEditing()}>
+                        <h1 class="text-xl mb-3">{loadedRecipe().name}</h1>
+                    </Match>
+                    <Match when={isEditing()}>
+                        <h1 class="text-xl mb-3 border-slate-700 border-2">
+                            <input class="w-full m-0" value={loadedRecipe().name} onChange={event => setRecipeTitle(event.target.value)}/>
+                        </h1>
+                    </Match>
+                </Switch>
+                
 
                 <div class="flex flex-row mb-3">
                     <p class="mr-10"><b>Estimated Time:</b> {loadedRecipe().stats.estimatedTime} </p>
