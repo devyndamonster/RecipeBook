@@ -4,6 +4,7 @@ import { Recipe } from "../Models/Recipe/Recipe";
 import { useGoogleAuth } from "./GoogleAuthContextProvider";
 import { loadRecipeListingFromId } from "../Api/RecipeManagement";
 import { appendRow } from "../Api/GoogleSheetsClient";
+import { createFile } from "../Api/GoogleDriveClient";
 
 const RecipesContext = createContext<RecipesContextStore>();
 
@@ -25,19 +26,12 @@ export const RecipesContextProvider: Component<{children?: JSXElement}> = (props
 		const recipeSheetId = googleFiles.find(file => file.name == "RecipeBook.RecipeSheet").id;
 		const parentFolderId = googleFiles.find(file => file.name == "RecipeBook").id;
 
-		const response = await gapi.client.drive.files.create({
-			resource: {
-				name: "New Recipe",
-				mimeType: "application/vnd.google-apps.document",
-				parents: [parentFolderId]
-			},
-			fields: 'id'
-		})
-	
-		const values = [response.result.id, "New Recipe", 0, 0];
+		const recipeFile = await createFile(accessToken(), "New Recipe", "application/vnd.google-apps.document", [parentFolderId])
+
+		const values = [recipeFile.id, "New Recipe", 0, 0];
 
 		const newRecipe: Recipe = {
-			id: response.result.id,
+			id: recipeFile.id,
 			name: "New Recipe",
 			stats: {
 				estimatedTime: 0,
@@ -66,7 +60,7 @@ export const RecipesContextProvider: Component<{children?: JSXElement}> = (props
 	createEffect(async () => {
         if(isSignedInToGoogle() && !hasLoadedRecipes()){
             const recipeSheetId = googleFiles.find(file => file.name == "RecipeBook.RecipeSheet").id;
-            const recipes = await loadRecipeListingFromId(recipeSheetId);
+            const recipes = await loadRecipeListingFromId(recipeSheetId, accessToken());
 
             setRecipes(recipes);
             setHasLoadedRecipes(true);

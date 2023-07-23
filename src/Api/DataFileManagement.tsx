@@ -1,5 +1,6 @@
 import { DataFile } from "../Models/Data/DataFile";
 import { RequiredDataFile } from "../Models/Data/RequiredDataFile";
+import { createFile, listFiles } from "./GoogleDriveClient";
 
 const requiredDataFiles: RequiredDataFile[] = [
     {
@@ -14,25 +15,8 @@ const requiredDataFiles: RequiredDataFile[] = [
     }
 ];
 
-export const loadFilesFromGoogle = async (): Promise<DataFile[]> => {
-    const response = await gapi.client.drive.files.list({
-        q: "name contains 'RecipeBook'",
-    });
-
-    await gapi.client.drive.files.update({
-        fileId: "",
-        resource: {
-            name: ""
-        }
-    })
-
-    let loadedFiles: DataFile[] = response.result.files.map(file => {
-        return {
-            name: file.name,
-            id: file.id,
-            mimeType: file.mimeType
-        }
-    });
+export const loadFilesFromGoogle = async (accessToken: string): Promise<DataFile[]> => {
+    const loadedFiles = await listFiles(accessToken);
 
     for(let fileIndex in requiredDataFiles){
         let requiredFile = requiredDataFiles[fileIndex];
@@ -42,28 +26,10 @@ export const loadFilesFromGoogle = async (): Promise<DataFile[]> => {
                 requiredFile.parents.findIndex(parentName => parentName == file.name) > -1)
             const parentIds = parentFiles.map(file => file.id);
 
-            const createdFile = await createFile(requiredFile.name, requiredFile.mimeType, parentIds);
+            const createdFile = await createFile(accessToken, requiredFile.name, requiredFile.mimeType, parentIds);
             loadedFiles.push(createdFile);
         }
     }
 
     return loadedFiles;
 }
-
-const createFile = async (fileName: string, mimeType: string, parentIds: string[]): Promise<DataFile> => {
-    const response = await gapi.client.drive.files.create({
-        resource: {
-            name: fileName,
-            mimeType: mimeType,
-            parents: parentIds
-        },
-        fields: 'id'
-    })
-
-    return {
-        name: fileName,
-        id: response.result.id,
-        mimeType: mimeType
-    }
-}
-

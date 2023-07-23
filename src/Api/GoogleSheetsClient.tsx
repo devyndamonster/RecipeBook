@@ -88,3 +88,18 @@ export const updateCellContent = async (fileId: string, accessToken: string, str
 
     return result;
 }
+
+export const getCellContent = async (fileId: string, accessToken: string, range: string): Promise<any[][]> =>{
+
+    let response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${range}`,{
+        method: "GET",
+        headers: {
+            'Authorization': 'Bearer ' + accessToken
+        }
+    });
+
+    const blob = await response.blob();
+    const result = JSON.parse(await blob.text());
+
+    return result.values;
+}

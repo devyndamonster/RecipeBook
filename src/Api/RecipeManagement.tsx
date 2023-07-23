@@ -2,16 +2,14 @@ import { Recipe } from "../Models/Recipe/Recipe";
 import { RecipeStep } from "../Models/Recipe/RecipeStep";
 import { getDocumentContent, clearDocumentContent, insertDocumentContent } from "./GoogleDocsClient";
 import { updateFileName } from "./GoogleDriveClient";
-import { appendRow, updateCellContent } from "./GoogleSheetsClient";
+import { appendRow, getCellContent, updateCellContent } from "./GoogleSheetsClient";
 
 
-export const loadRecipeListingFromId = async (fileId: string): Promise<Recipe[]> => {
-    const listingContent = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: fileId,
-        range: "A2:D"
-    });
+export const loadRecipeListingFromId = async (fileId: string, accessToken: string): Promise<Recipe[]> => {
 
-    const recipeListing: Recipe[] = listingContent.result.values.map((result, index) => {
+    const values = await getCellContent(fileId, accessToken, "A2:D");
+
+    const recipeListing: Recipe[] = values.map((result) => {
         return {
             id: result[0],
             name: result[1],

@@ -24,7 +24,7 @@ export const GoogleAuthContextProvider: Component<{children?: JSXElement}> = (pr
 		console.log(`Mounting google auth context. Access Token ${accessToken()}`)
 		if(!isSignedInToGoogle()){
 			GoogleApi.initializeGoogleApi((token) => {
-				loadFilesFromGoogle().then((files) => {
+				loadFilesFromGoogle(token).then((files) => {
 					console.log("Loaded data files");
 					console.log(files);
 					setGoogleFiles(files);
