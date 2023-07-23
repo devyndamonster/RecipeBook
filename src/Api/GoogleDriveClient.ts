@@ -61,7 +61,7 @@ export const createFile = async (accessToken: string, fileName: string, mimeType
 
     return {
         name: fileName,
-        id: result.result.id,
+        id: result.id,
         mimeType: mimeType
     };
 }

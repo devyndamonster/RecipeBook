@@ -13,14 +13,24 @@ const HomePage: Component = () => {
             </div>
 
             { isSignedInToGoogle() &&
-                <A 
-                    class="flex flex-row bg-slate-100 hover:bg-slate-200 p-1 border-b border-slate-400 font-normal text-slate-950 cursor-pointer" 
-                    href={"Recipes"}
-                >
-                    <div class="flex flex-col" >
-                        <div class="p-2 text-xl">View Recipes</div>
-                    </div>
-                </A>
+                <>
+                    <A 
+                        class="flex flex-row bg-slate-100 hover:bg-slate-200 p-1 border-b border-slate-400 font-normal text-slate-950 cursor-pointer" 
+                        href={"Recipes"}
+                    >
+                        <div class="flex flex-col" >
+                            <div class="p-2 text-xl">View Recipes</div>
+                        </div>
+                    </A>
+                    <A 
+                        class="flex flex-row bg-slate-100 hover:bg-slate-200 p-1 border-b border-slate-400 font-normal text-slate-950 cursor-pointer" 
+                        href={"WheelOfMeals"}
+                    >
+                        <div class="flex flex-col" >
+                            <div class="p-2 text-xl">Wheel Of Meals</div>
+                        </div>
+                    </A>
+                </>
             }
         </div>
     );
