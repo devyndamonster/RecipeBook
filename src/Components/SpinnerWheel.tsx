@@ -2,6 +2,7 @@ import { Accessor, Component, Show, createEffect, createSignal } from "solid-js"
 
 interface Props{
     options: string[];
+    onCurrentOptionChanged: (option: string) => void;
 }
 
 export const SpinnerWheel: Component<Props> = (props) => {
@@ -10,6 +11,7 @@ export const SpinnerWheel: Component<Props> = (props) => {
 	const [spinSpeed, setSpinSpeed] = createSignal(0);
 	const [currentRotation, setCurrentRotation] = createSignal(0);
     const [colors, setColors] = createSignal<string[]>([]);
+    const [currentOption, setCurrentOption] = createSignal("");
 
     const getConicGradient = (options: string[]): string => {
         let style = "from 0deg";
@@ -36,13 +38,21 @@ export const SpinnerWheel: Component<Props> = (props) => {
         if(spinSpeed() > 0){
             let newRotation = currentRotation() + spinSpeed();
             if (newRotation > 360) newRotation = 0;
+
+            const selectionIndex = Math.min(Math.floor((newRotation / 360) * props.options.length), props.options.length - 1);
+            const selectedOption = props.options[selectionIndex];
+            if(currentOption() != selectedOption){
+                setCurrentOption(selectedOption);
+                props.onCurrentOptionChanged(selectedOption);
+            }
+
             setCurrentRotation(newRotation);
         }
 	}
 
 	const spinTheWheel = () => {
 		setSpinTimeRemaining(5 + (5 * Math.random()));
-		setSpinSpeed(10);
+		setSpinSpeed(10 + (5 * Math.random()));
 	}
 
 	setInterval(updateRotation, 10);
@@ -55,7 +65,7 @@ export const SpinnerWheel: Component<Props> = (props) => {
 
     return (
         <>
-            <div class="w-60 h-60 relative">
+            <div class="w-80 h-80 relative">
                 <div style={
                     {
                         background:`conic-gradient(${getConicGradient(props.options)})`,
